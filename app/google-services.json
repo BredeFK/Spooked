@@ -1,0 +1,94 @@
+{
+  "project_info": {
+    "project_number": "1021419416369",
+    "firebase_url": "https://spooked-1337.firebaseio.com",
+    "project_id": "spooked-1337",
+    "storage_bucket": "spooked-1337.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021419416369:android:ba55633654a2ea6b",
+        "android_client_info": {
+          "package_name": "com.gamejam.Spooked"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021419416369-5q2sf9l8bhtpai8k0gre825a4a5shotq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMeE48iy22ML5yWtZhVGalnISG4KU7yiY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021419416369:android:f0cbce6ca032591d",
+        "android_client_info": {
+          "package_name": "gamejam.spooked.com.spooked"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021419416369-90th295349mn09tms0qb0fs1bcd523bf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gamejam.spooked.com.spooked",
+            "certificate_hash": "ab623b3a8d21751f391ba3a234097573caa32a8c"
+          }
+        },
+        {
+          "client_id": "1021419416369-0hc5ultn7trpdfmtj892ph9rk0jlv6pv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gamejam.spooked.com.spooked",
+            "certificate_hash": "80be21d661caf37da1e33fbe679cdddf56a61fc5"
+          }
+        },
+        {
+          "client_id": "1021419416369-5q2sf9l8bhtpai8k0gre825a4a5shotq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMeE48iy22ML5yWtZhVGalnISG4KU7yiY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021419416369-5q2sf9l8bhtpai8k0gre825a4a5shotq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
