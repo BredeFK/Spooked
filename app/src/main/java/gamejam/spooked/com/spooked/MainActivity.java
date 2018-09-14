@@ -21,9 +21,9 @@ public class MainActivity extends AppCompatActivity {
 
         initialise();
 
-        // User is logged in
-        if(user != null){
-            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+        // User is not logged in
+        if(user == null){
+            Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivity(intent);
         }
     }
@@ -31,19 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private void initialise(){
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        // TODO : make resource string
-        String logIn = "Log in";
-        String register = "Register";
-
-        PageAdapter pageAdapter = new PageAdapter(getSupportFragmentManager());
-        ViewPager viewPager = findViewById(R.id.container);
-        TabLayout layout = findViewById(R.id.tabs);
-
-        pageAdapter.addFragment(new LogIn(), logIn);
-        pageAdapter.addFragment(new register(), register);
-        viewPager.setAdapter(pageAdapter);
-
-        layout.setupWithViewPager(viewPager);
     }
 
 
