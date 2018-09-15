@@ -1,5 +1,7 @@
 package gamejam.spooked.com.spooked;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,8 +17,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public class SpookedNearbyActivity extends AppCompatActivity {
     private ArrayList<User> userList = new ArrayList<>();
@@ -27,6 +34,9 @@ public class SpookedNearbyActivity extends AppCompatActivity {
     private FirebaseUser user;
     private ListView listNearby;
     private NearbyAdapter adapter;
+    private double lat = 60.814858;
+    private double lon = 11.060269;
+    private double distance;
 
     @Override
     protected void onStart() {
@@ -56,7 +66,6 @@ public class SpookedNearbyActivity extends AppCompatActivity {
     }
 
     private void fillListView(){
-        Log.d("DISTANCE", "" + distance(0,0, 50,50));
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -65,11 +74,13 @@ public class SpookedNearbyActivity extends AppCompatActivity {
                     User nearbyUser = child.getValue(User.class);
                     if(nearbyUser != null){
                      if(!nearbyUser.getUid().equals(user.getUid()) && nearbyUser.hasLocation()){
-                        adapter.add(nearbyUser);
+                         userList.add(nearbyUser);
+                        //adapter.add(nearbyUser);
                         }
                     }
                 }
-                listNearby.setAdapter(adapter);
+                sortList();
+               // listNearby.setAdapter(adapter);
             }
 
             @Override
@@ -77,6 +88,36 @@ public class SpookedNearbyActivity extends AppCompatActivity {
                 // Rip :(
             }
         });
+    }
+
+    private void sortList(){
+        // initialise variables
+        ArrayList<User> sortedUserList = new ArrayList<>(); sortedUserList.clear();
+        int index = 0; int size = userList.size(); double highest = 0;
+
+        // Sort by highest distance
+        while (sortedUserList.size() != size) {
+            for (int i = 0; i < userList.size(); i++) {
+                distance = distance(lat, lon, userList.get(i).getLastLatitude(), userList.get(i).getLastLongitude());
+                if (distance > highest) {
+                    highest = distance;
+                    index = i;
+                }
+                if(i == userList.size()-1){
+                    sortedUserList.add(userList.get(index));
+                    userList.remove(index);
+                    highest = 0;
+                }
+            }
+        }
+
+        // Reverse list (sort by lowest) and display
+        for (int i = sortedUserList.size()-1; i >= 0; i--) {
+            Log.d("SORTED", sortedUserList.get(i).getName());
+            adapter.add(sortedUserList.get(i));
+        }
+        listNearby.setAdapter(adapter);
+
     }
 
     // https://dzone.com/articles/distance-calculation-using-3
@@ -96,10 +137,7 @@ public class SpookedNearbyActivity extends AppCompatActivity {
         dist = dist * 60 * 1.1515;
         dist = dist * 1.609344;
 
-        // Format to only two decimal points
-        DecimalFormat df = new DecimalFormat(".##");
-        return Double.parseDouble(df.format(dist));
+        return Math.floor(dist * 100) / 100;
     }
     // Source done
-
 }
