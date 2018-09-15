@@ -2,8 +2,10 @@ package gamejam.spooked.com.spooked;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -12,6 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +23,8 @@ import java.util.Locale;
 public class NearbyAdapter extends ArrayAdapter<User> {
     private Activity activity;
     private int id;
+    private SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+    float lat, lon;
 
     public NearbyAdapter(Context context, int id){
         super(context,id);
@@ -29,9 +35,8 @@ public class NearbyAdapter extends ArrayAdapter<User> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
-        double lat = 60.814858;
-        double lon = 11.060269;
+        lat = preferences.getFloat("lat", 0);
+        lon = preferences.getFloat("lon", 0);
 
         if(convertView == null){
             convertView = this.activity.getLayoutInflater().inflate(this.id, parent, false);
@@ -45,7 +50,7 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         TextView distance = convertView.findViewById(R.id.nearDistance);
         TextView town = convertView.findViewById(R.id.nearTown);
         String location = getTownFromLatAndLon(user.getLastLatitude(), user.getLastLongitude());
-        String distanceInKM = distance(lat,lon, user.getLastLatitude(), user.getLastLongitude()) + "km";
+        String distanceInKM = distance(lat, lon, user.getLastLatitude(), user.getLastLongitude()) + "km";
 
 
         if (user.getName() != null){
@@ -62,17 +67,21 @@ public class NearbyAdapter extends ArrayAdapter<User> {
     private String getTownFromLatAndLon(double lat, double lon){
         String city = null;
         String county = null;
+        String country = null;
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
         try{
             List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
             city = addresses.get(0).getAdminArea();
             county = addresses.get(0).getSubAdminArea();
+            country = addresses.get(0).getCountryName();
 
         } catch (Exception e){
             Log.w("Address error", e.getMessage());
         }
         if(county != null && city != null)
             return county + ", " + city;
+        else if(country != null)
+            return "[no city], " + country;
         else
             return "[no city]";
     }
