@@ -31,12 +31,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
+    private int currentDate;
     private String userID;
     private LatLng currentLatLng;
 
@@ -60,20 +64,36 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         this.mDatabase = FirebaseDatabase.getInstance();
         this.myRef = mDatabase.getReference("spooks");
 
+        this.currentDate = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
+
         //data
         readFromDB();
         //map
         setupMapAndLocation();
         //fab
         setupFAB();
+
+
     }
 
-    private void addToMap(LatLng pos, String text){
+    private void addToMap(LatLng pos, String text, int daysOld){
+
+        int ghost = 0;
+
+        switch (daysOld){
+            case 0: ghost = R.mipmap.if_ghost1; break;
+            case 1: ghost = R.mipmap.if_ghost1; break;
+            case 2: ghost = R.mipmap.if_ghost2; break;
+            case 3: ghost = R.mipmap.if_ghost3; break;
+            case 4: ghost = R.mipmap.if_ghost4; break;
+            default: ghost = R.mipmap.if_ghost5; break;
+        }
+
         Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(pos)
                             .title(text)
                             .visible(true)
-                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost4))
+                            .icon(BitmapDescriptorFactory.fromResource(ghost))
         );
 
         markerList.add(marker);
@@ -124,7 +144,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 deleteMarkers(); //resets all markers - this is very unefficient but ye
                 for(DataSnapshot child: dataSnapshot.getChildren()) {
                     Spook spook = child.getValue(Spook.class);
-                    addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID());
+                    addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID(), currentDate-spook.getDate());
                 }
             }
 
@@ -179,7 +199,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
 
                 String key = myRef.push().getKey();
-                myRef.child(key).setValue(new Spook(userID, currentLatLng.latitude, currentLatLng.longitude));
+                myRef.child(key).setValue(new Spook(userID, currentLatLng.latitude, currentLatLng.longitude, currentDate));
             }
         });
     }

@@ -7,14 +7,16 @@ public class Spook {
     private String userID;
     private double latitude;
     private double longitude;
+    private int date;
 
     Spook(){
     }
 
-    Spook(String userID, double latitude, double longitude){
+    Spook(String userID, double latitude, double longitude, int date){
         this.userID = userID;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.date = date;
     }
 
     public String getUserID() {
@@ -29,6 +31,10 @@ public class Spook {
         return longitude;
     }
 
+    public int getDate() {
+        return date;
+    }
+
     public void setUserID(String userID) {
         this.userID = userID;
     }
@@ -39,5 +45,9 @@ public class Spook {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public void setDate(int date) {
+        this.date = date;
     }
 }
