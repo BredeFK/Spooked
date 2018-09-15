@@ -9,4 +9,8 @@
     <string name="login">Log in</string>
     <string name="settings">Settings</string>
     <string name="logout">Log out</string>
+    <string name="title_activity_friend_list">FriendListActivity</string>
+    <string name="friends">Friends</string>
+    <string name="send">Send</string>
+    <string name="nearby">Spooked people nearby</string>
 </resources>

@@ -28,8 +28,6 @@ public class LoginFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
 
-    // TODO make activity more pretty
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);

@@ -20,11 +20,16 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Objects;
 
 public class RegisterFragment extends Fragment {
     private static final String TAG = "register";
+    private static final String userString = "Users";
+    private FirebaseDatabase database;
+    private DatabaseReference userRef;
     private EditText editName;
     private EditText editEmail;
     private EditText editPass;
@@ -33,8 +38,6 @@ public class RegisterFragment extends Fragment {
     private FirebaseAuth auth;
     private FirebaseUser user;
 
-
-    // TODO make activity more pretty
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -102,8 +105,20 @@ public class RegisterFragment extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     Toast.makeText(getActivity(), "Welcome, " + displayName + "!", Toast.LENGTH_SHORT).show();
+                    addToDatabase();
                 }
             }
         });
     }
+
+    private void addToDatabase(){
+        database = FirebaseDatabase.getInstance();
+        userRef = database.getReference(userString);
+
+        String id = user.getUid(); String name = user.getDisplayName(); String email = user.getEmail();
+
+        User newUser = new User(id, name, email);
+        userRef.child(id).setValue(newUser);
+    }
+
 }
