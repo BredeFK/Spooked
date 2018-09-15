@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
         if(user == null){
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivity(intent);
+        } else {
+            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            startActivity(intent);
         }
     }
 
