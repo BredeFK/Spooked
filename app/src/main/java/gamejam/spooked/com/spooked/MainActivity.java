@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQUEST_LOCATION_CODE);
             } else {
-               // Intent intent = new Intent(MainActivity.this, MapActivity.class);
-                Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+               // Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
                 startActivity(intent);
             }
 
@@ -107,11 +107,4 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
-    public void mapViewKjor(View view) {
-        Intent intent = new Intent(this, MapActivity.class);
-        startActivity(intent);
-    }
-
 }

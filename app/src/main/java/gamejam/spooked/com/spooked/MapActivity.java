@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
 
@@ -93,6 +93,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                             .position(pos)
                             .title(text)
                             .visible(true)
+                            .alpha(0.8f)
                             .icon(BitmapDescriptorFactory.fromResource(ghost))
         );
 
@@ -105,6 +106,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
 
         markerList.clear();
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+
+
+
+        return false;
     }
 
 
