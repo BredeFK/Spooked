@@ -1,8 +1,12 @@
 package gamejam.spooked.com.spooked;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -14,6 +18,8 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseUser user;
@@ -23,9 +29,21 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         initialise();
 
+        //check/request location permissions
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            ActivityCompat.requestPermissions(MapActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    1);
+        }
+
         // User is not logged in
         if(user == null){
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
+            startActivity(intent);
+        }else{
+            Intent intent = new Intent(MainActivity.this, MapActivity.class);
             startActivity(intent);
         }
     }
