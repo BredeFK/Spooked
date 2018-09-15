@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 
         // User is not logged in
         if(user == null){
-            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivity(intent);
         }
     }
