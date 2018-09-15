@@ -107,11 +107,4 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
-    public void mapViewKjor(View view) {
-        Intent intent = new Intent(this, MapActivity.class);
-        startActivity(intent);
-    }
-
 }
