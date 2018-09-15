@@ -34,6 +34,8 @@ public class RegisterFragment extends Fragment {
     private FirebaseUser user;
 
 
+    // TODO make activity more pretty
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_register, container, false);
