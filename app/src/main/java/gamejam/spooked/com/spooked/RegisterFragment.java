@@ -23,7 +23,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.Objects;
 
-public class register extends Fragment {
+public class RegisterFragment extends Fragment {
     private static final String TAG = "register";
     private EditText editName;
     private EditText editEmail;
@@ -63,7 +63,9 @@ public class register extends Fragment {
     private void createUser(final String name, String email, String password, String confPass) {
         // If none are empty
         if(!name.isEmpty() && !email.isEmpty() && !password.isEmpty()){
+            //  If passwords match
             if(password.equals(confPass)) {
+                // Create user and add username/displayName
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                             @Override
@@ -87,17 +89,17 @@ public class register extends Fragment {
         }
     }
 
-    private void addNameToUser(final String displayname){
+    private void addNameToUser(final String displayName){
         user = auth.getCurrentUser();
 
         UserProfileChangeRequest request = new UserProfileChangeRequest.Builder()
-                .setDisplayName(displayname).build();
+                .setDisplayName(displayName).build();
 
         user.updateProfile(request).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(getActivity(), "Display name " + displayname + " added!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Welcome, " + displayName + "!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

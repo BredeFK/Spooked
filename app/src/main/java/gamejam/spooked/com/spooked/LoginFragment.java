@@ -16,25 +16,27 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
-public class LogIn extends Fragment {
+public class LoginFragment extends Fragment {
     private static final String TAG = "LogIn";
     private EditText editEmail;
-    private EditText editpass;
+    private EditText editPass;
     private Button buttonLogin;
     private FirebaseAuth auth;
+    private FirebaseUser user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_log_in, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
         initialise(view);
 
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginUser(editEmail.getText().toString(), editpass.getText().toString());
+                loginUser(editEmail.getText().toString(), editPass.getText().toString());
             }
         });
 
@@ -43,7 +45,7 @@ public class LogIn extends Fragment {
 
     private void initialise(View view){
         editEmail = view.findViewById(R.id.editEmailLogin);
-        editpass = view.findViewById(R.id.editPasswordLogin);
+        editPass = view.findViewById(R.id.editPasswordLogin);
         buttonLogin = view.findViewById(R.id.btnLogin);
         auth = FirebaseAuth.getInstance();
     }
@@ -55,6 +57,8 @@ public class LogIn extends Fragment {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
                         Log.d(TAG, "createUserWithEmail:success");
+                        user = auth.getCurrentUser();
+                        Toast.makeText(getActivity(), "Hello, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity(), MainActivity.class);
                         startActivity(intent);
                     } else {

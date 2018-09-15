@@ -34,16 +34,15 @@ public class UserActivity extends AppCompatActivity {
     private void initialise(){
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        // TODO : make resource string
-        String logIn = "Log in";
-        String register = "Register";
+        String login = getResources().getString(R.string.login);
+        String register = getResources().getString(R.string.register);
 
         PageAdapter pageAdapter = new PageAdapter(getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.container);
         TabLayout layout = findViewById(R.id.tabs);
 
-        pageAdapter.addFragment(new LogIn(), logIn);
-        pageAdapter.addFragment(new register(), register);
+        pageAdapter.addFragment(new LoginFragment(), login);
+        pageAdapter.addFragment(new RegisterFragment(), register);
         viewPager.setAdapter(pageAdapter);
 
         layout.setupWithViewPager(viewPager);
