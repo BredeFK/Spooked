@@ -37,6 +37,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private FirebaseDatabase mDatabase;
     private DatabaseReference myRef;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
