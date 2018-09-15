@@ -1,6 +1,5 @@
 package gamejam.spooked.com.spooked;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,67 +10,69 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-public class register extends Fragment {
-    private static final String TAG = "register";
-    private EditText editName;
+import java.util.Objects;
+
+public class LoginFragment extends Fragment {
+    private static final String TAG = "LogIn";
     private EditText editEmail;
     private EditText editPass;
-    private EditText editConfPass;
-    private Button registerButton;
+    private Button buttonLogin;
     private FirebaseAuth auth;
-
+    private FirebaseUser user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_register, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
         initialise(view);
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createUser(editName.getText().toString() ,editEmail.getText().toString()
-                        , editPass.getText().toString());
-
+                loginUser(editEmail.getText().toString(), editPass.getText().toString());
             }
         });
 
         return view;
     }
 
-    private void initialise(View view) {
-        editName = view.findViewById(R.id.editName);
-        editEmail = view.findViewById(R.id.editEmail);
-        editPass = view.findViewById(R.id.editPassword);
-        editConfPass = view.findViewById(R.id.editPassword2);
-        registerButton = view.findViewById(R.id.btnRegister);
+    private void initialise(View view){
+        editEmail = view.findViewById(R.id.editEmailLogin);
+        editPass = view.findViewById(R.id.editPasswordLogin);
+        buttonLogin = view.findViewById(R.id.btnLogin);
         auth = FirebaseAuth.getInstance();
     }
 
-    private void createUser(String name, String email, String password) {
-        // If none are empty
-        if(!name.isEmpty() && !email.isEmpty() && !password.isEmpty()){
-            auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+    private void loginUser(String email, String password){
+        if(!email.isEmpty() && !password.isEmpty()){
+            auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
-                        // TODO add displayname
                         Log.d(TAG, "createUserWithEmail:success");
+                        user = auth.getCurrentUser();
+                        Toast.makeText(getActivity(), "Hello, " + user.getDisplayName() + "!", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity(), MainActivity.class);
                         startActivity(intent);
                     } else {
                         Log.w(TAG, "createUserWithEmail:failure", task.getException());
-
+                        Toast.makeText(getActivity(), "Error: " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_LONG).show();
                     }
                 }
             });
+
+        } else {
+            Toast.makeText(getActivity(), "No fields can be blank!", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
 }
