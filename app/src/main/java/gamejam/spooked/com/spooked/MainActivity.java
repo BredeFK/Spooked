@@ -21,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_LOCATION_CODE = 1;
     private FirebaseAuth auth;
     private FirebaseUser user;
 
@@ -40,9 +41,10 @@ public class MainActivity extends AppCompatActivity {
                 // Permission is not granted
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                        1);
+                        REQUEST_LOCATION_CODE);
             } else {
-                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+               // Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
                 startActivity(intent);
             }
 
@@ -87,23 +89,22 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case 1: {
+            case REQUEST_LOCATION_CODE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // permission was granted!
                     Intent intent = new Intent(MainActivity.this, MapActivity.class);
                     startActivity(intent);
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // permission denied!
+                    Toast.makeText(this, "We kinda need the permission tho...", Toast.LENGTH_LONG).show();
                 }
-                return;
-            }
+            } break;
+            default:
+                //rip
+                break;
 
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 

@@ -43,6 +43,15 @@
             android:name=".MapActivity"
             android:label="@string/title_activity_map" />
         <activity android:name=".UserActivity" />
+        <!-- TODO add backbutton -->
+        <activity
+            android:name=".FriendListActivity"
+            android:label="@string/friends"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".SpookedNearbyActivity"
+            android:label="@string/nearby"/>
+        <activity android:name=".ChatActivity"/>
     </application>
 
 </manifest>
