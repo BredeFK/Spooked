@@ -23,8 +23,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -44,14 +47,31 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
         setContentView(R.layout.activity_map);
 
+        //firebase auth
         auth = FirebaseAuth.getInstance();
         //retrieve userid
         userID = auth.getCurrentUser().getUid();
 
         // Write a message to the database
         this.mDatabase = FirebaseDatabase.getInstance();
-        this.myRef = mDatabase.getReference(userID);
+        this.myRef = mDatabase.getReference("spooks");
 
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot child: dataSnapshot.getChildren()) {
+                    Spook spook = child.getValue(Spook.class);
+
+                    addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -94,9 +114,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
 
                 String key = myRef.push().getKey();
-                myRef.child(key).setValue(currentLatLng);
+                myRef.child(key).setValue(new Spook(userID, currentLatLng.latitude, currentLatLng.longitude));
             }
         });
+    }
+
+    private void addToMap(LatLng pos, String text){
+        mMap.addMarker(new MarkerOptions().position(pos).title(text).visible(true));
     }
 
 
@@ -125,6 +149,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             Log.e("HEI", "Can't find style. Error: ", e);
         }
         mMap = googleMap;
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
     }
 
 
