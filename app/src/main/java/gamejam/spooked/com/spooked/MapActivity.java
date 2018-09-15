@@ -200,7 +200,17 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
                 String key = myRef.push().getKey();
                 myRef.child(key).setValue(new Spook(userID, currentLatLng.latitude, currentLatLng.longitude, currentDate));
+                updateLocationToUserDB(currentLatLng.latitude, currentLatLng.longitude);
             }
         });
+    }
+
+    private void updateLocationToUserDB(double latitude, double longitude){
+        Log.d ("FUCK BOI", "Latitude: " + latitude + " longitude: " + longitude);
+        // TODO works sometimes :D
+
+        DatabaseReference userRef = mDatabase.getReference("Users");//.child(userID);
+        userRef.child(userID).child("lastLatitude").setValue(latitude);
+        userRef.child(userID).child("lastLongitude").setValue(longitude);
     }
 }

@@ -116,7 +116,6 @@ public class RegisterFragment extends Fragment {
         userRef = database.getReference(userString);
 
         String id = user.getUid(); String name = user.getDisplayName(); String email = user.getEmail();
-
         User newUser = new User(id, name, email);
         userRef.child(id).setValue(newUser);
     }

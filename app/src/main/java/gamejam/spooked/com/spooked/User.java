@@ -1,7 +1,7 @@
 package gamejam.spooked.com.spooked;
 
 public class User {
-    private String Uid;
+    private String uid;
     private String name;
     private String email;
     private double lastLatitude;
@@ -11,16 +11,16 @@ public class User {
 
     }
 
-    public User(String Uid, String name, String email, double latitude, double longitude){
-        this.Uid = Uid;
+    public User(String uid, String name, String email, double latitude, double longitude){
+        this.uid = uid;
         this.name = name;
         this.email = email;
         this.lastLatitude = latitude;
         this.lastLongitude = longitude;
     }
 
-    public User(String Uid, String name, String email){
-        this.Uid = Uid;
+    public User(String uid, String name, String email){
+        this.uid = uid;
         this.name = name;
         this.email = email;
         lastLatitude = 100.0;
@@ -33,7 +33,7 @@ public class User {
     }
 
     public String getUid() {
-        return Uid;
+        return uid;
     }
 
     public String getName(){
@@ -51,4 +51,9 @@ public class User {
     public double getLastLongitude(){
         return lastLongitude;
     }
+
+    public boolean hasLocation(){
+        return (lastLongitude != 100 && lastLatitude != 100);
+    }
+
 }
