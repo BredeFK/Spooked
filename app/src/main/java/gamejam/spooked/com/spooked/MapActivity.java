@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -21,16 +20,36 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    private String userID;
+
+    private FirebaseAuth auth;
+    private FirebaseDatabase mDatabase;
+    private DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_map);
+
+        auth = FirebaseAuth.getInstance();
+        //retrieve userid
+        userID = auth.getCurrentUser().getUid();
+
+        // Write a message to the database
+        this.mDatabase = FirebaseDatabase.getInstance();
+        this.myRef = mDatabase.getReference(userID);
+
+
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -57,8 +76,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 //makeUseOfNewLocation(location);
                 LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
 
-                mMap.addMarker(new MarkerOptions().position(pos).title("New Spooke").visible(true));
+                mMap.addMarker(new MarkerOptions().position(pos).title("Wow bamboozled again").visible(true));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+
+                String key = myRef.push().getKey();
+                myRef.child(key).setValue(pos);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -105,9 +127,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
         // Add a marker in Sydney and move the camera
 
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 7));
+        LatLng NTNUGtown = new LatLng(60.790136, 10.683513);
+        mMap.addMarker(new MarkerOptions().position(NTNUGtown).title("NTNU i Gjøvik"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(NTNUGtown, 15));
     }
 
 }
