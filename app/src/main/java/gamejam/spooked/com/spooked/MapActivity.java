@@ -19,8 +19,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -28,6 +30,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -40,11 +44,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private FirebaseDatabase mDatabase;
     private DatabaseReference myRef;
 
+    private ArrayList<Marker> markerList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_map);
 
         //firebase auth
@@ -52,19 +56,76 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         //retrieve userid
         userID = auth.getCurrentUser().getUid();
 
-        // Write a message to the database
+        //db connection and reference
         this.mDatabase = FirebaseDatabase.getInstance();
         this.myRef = mDatabase.getReference("spooks");
 
+        //data
+        readFromDB();
+        //map
+        setupMapAndLocation();
+        //fab
+        setupFAB();
+    }
+
+    private void addToMap(LatLng pos, String text){
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                            .position(pos)
+                            .title(text)
+                            .visible(true)
+                            .icon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost4))
+        );
+
+        markerList.add(marker);
+    }
+
+    private void deleteMarkers(){
+        for (int i = 0; i < markerList.size(); i++) {
+            markerList.get(i).remove();
+        }
+
+        markerList.clear();
+    }
+
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.map_style));
+
+            if (!success) {
+                Log.e("HEI", "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e("HEI", "Can't find style. Error: ", e);
+        }
+        this.mMap = googleMap;
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
+    }
+
+    private void readFromDB(){
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                deleteMarkers(); //resets all markers - this is very unefficient but ye
                 for(DataSnapshot child: dataSnapshot.getChildren()) {
                     Spook spook = child.getValue(Spook.class);
-
                     addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID());
                 }
-
             }
 
             @Override
@@ -72,7 +133,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
+    }
 
+
+    private void setupMapAndLocation(){
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -104,13 +168,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
 
+    private void setupFAB(){
         // FAB STUFF
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Wow bamboozled again").visible(true));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
 
                 String key = myRef.push().getKey();
@@ -118,43 +183,4 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             }
         });
     }
-
-    private void addToMap(LatLng pos, String text){
-        mMap.addMarker(new MarkerOptions().position(pos).title(text).visible(true));
-    }
-
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        try {
-            // Customise the styling of the base map using a JSON object defined
-            // in a raw resource file.
-            boolean success = googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.map_style));
-
-            if (!success) {
-                Log.e("HEI", "Style parsing failed.");
-            }
-        } catch (Resources.NotFoundException e) {
-            Log.e("HEI", "Can't find style. Error: ", e);
-        }
-        mMap = googleMap;
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
-    }
-
-
-
-
-
 }
