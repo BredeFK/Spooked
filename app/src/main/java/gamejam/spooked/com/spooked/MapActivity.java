@@ -2,23 +2,30 @@ package gamejam.spooked.com.spooked;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -55,6 +62,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
+        currentLatLng = new LatLng(0,0);
+
         //firebase auth
         auth = FirebaseAuth.getInstance();
         //retrieve userid
@@ -73,30 +82,30 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //fab
         setupFAB();
 
-
     }
 
     private void addToMap(LatLng pos, String text, int daysOld){
 
         int ghost = 0;
+        float visible = 1.0f;
 
         switch (daysOld){
-            case 0: ghost = R.mipmap.if_ghost1; break;
-            case 1: ghost = R.mipmap.if_ghost1; break;
-            case 2: ghost = R.mipmap.if_ghost2; break;
-            case 3: ghost = R.mipmap.if_ghost3; break;
-            case 4: ghost = R.mipmap.if_ghost4; break;
-            default: ghost = R.mipmap.if_ghost5; break;
+            case 0: ghost = R.mipmap.if_ghost1; visible = 1.0f; break;
+            case 1: ghost = R.mipmap.if_ghost1; visible = 0.9f; break;
+            case 2: ghost = R.mipmap.if_ghost2; visible = 0.8f; break;
+            case 3: ghost = R.mipmap.if_ghost3; visible = 0.6f; break;
+            case 4: ghost = R.mipmap.if_ghost4; visible = 0.4f; break;
+            default: ghost = R.mipmap.if_ghost5; visible = 0.2f; break;
         }
 
         Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(pos)
-                            .title(text)
+                            //.title(text)
                             .visible(true)
-                            .alpha(0.8f)
+                            .alpha(visible)
                             .icon(BitmapDescriptorFactory.fromResource(ghost))
         );
-
+        marker.setTag(text);
         markerList.add(marker);
     }
 
@@ -111,7 +120,29 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
+        marker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost6));
+        marker.setAlpha(1.0f);
 
+        ConstraintLayout fragment = (ConstraintLayout) findViewById(R.id.constlay);
+        fragment.setVisibility(View.VISIBLE);
+
+        fragment.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+
+        Button button = (Button)findViewById(R.id.button); //TODO: functionality for this button
+        Button button2 = (Button)findViewById(R.id.button2);
+
+        final String uid = (String)marker.getTag();
+
+        Log.d("FUUUUUUUUUUUUUUUUUUQ", " : " +uid);
+
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MapActivity.this, ChatActivity.class);
+                intent.putExtra("uid", uid);
+                startActivity(intent);
+            }
+        });
 
         return false;
     }
@@ -141,8 +172,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         } catch (Resources.NotFoundException e) {
             Log.e("HEI", "Can't find style. Error: ", e);
         }
-        this.mMap = googleMap;
 
+        this.mMap = googleMap;
+        this.mMap.setOnMarkerClickListener(this);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
     }
 
@@ -205,7 +238,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+                //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
 
                 String key = myRef.push().getKey();
                 myRef.child(key).setValue(new Spook(userID, currentLatLng.latitude, currentLatLng.longitude, currentDate));

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/relLayYo">
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -15,4 +21,50 @@
         android:src="@mipmap/if_ghost"
         android:layout_margin="16dp"
         xmlns:android="http://schemas.android.com/apk/res/android" />
+
 </fragment>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constlay"
+        android:layout_width="match_parent"
+        android:visibility="invisible"
+        android:layout_height="91dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:minHeight="20dp"
+        android:minWidth="50dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Oh noes, your friend is spooked! What do you want to do?"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            map:layout_constraintBottom_toTopOf="@id/button"
+            map:layout_constraintEnd_toEndOf="parent"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:text="Add Friend"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintEnd_toStartOf="@+id/button2"
+            map:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:text="Send Message"
+            map:layout_constraintBottom_toBottomOf="parent"
+            map:layout_constraintEnd_toEndOf="parent"
+            map:layout_constraintStart_toEndOf="@+id/button" />
+    </android.support.constraint.ConstraintLayout>
+</RelativeLayout>
