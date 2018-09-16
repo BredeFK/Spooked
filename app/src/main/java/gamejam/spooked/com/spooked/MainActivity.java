@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOCATION_CODE = 1;
     private FirebaseAuth auth;
     private FirebaseUser user;
+    private Button maps;
+    private Button friends;
 
     @Override
     protected void onStart() {
@@ -41,6 +44,23 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("thisUserID", user.getUid());
             editor.apply();
+
+            maps.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+            friends.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
+                    startActivity(intent);
+                }
+            });
+
             //check/request location permissions
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -49,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQUEST_LOCATION_CODE);
             } else {
-                Intent intent = new Intent(MainActivity.this, MapActivity.class);
+                //Intent intent = new Intent(MainActivity.this, MapActivity.class);
                // Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
-                startActivity(intent);
+               // startActivity(intent);
             }
 
         }
@@ -68,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
     private void initialise(){
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        maps = findViewById(R.id.maps);
+        friends = findViewById(R.id.friends);
     }
 
     @Override
