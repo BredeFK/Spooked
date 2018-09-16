@@ -14,4 +14,10 @@
     <string name="send">Send</string>
     <string name="nearby">Spooked people nearby</string>
     <string name="information">Click on a spooked person to add them</string>
+
+
+    <!-- notification related strings -->
+    <string name="channel_id">spookyNoti</string>
+    <string name="channel_name">messagesChannel</string>
+    <string name="channel_description">notification</string>
 </resources>
