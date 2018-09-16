@@ -2,6 +2,7 @@ package gamejam.spooked.com.spooked;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -42,7 +44,7 @@ public class NearbyAdapter extends ArrayAdapter<User> {
             convertView = this.activity.getLayoutInflater().inflate(this.id, parent, false);
         }
 
-        User user = this.getItem(position);
+        final User user = this.getItem(position);
         if(user == null)
             throw new NullPointerException();
 
@@ -60,6 +62,16 @@ public class NearbyAdapter extends ArrayAdapter<User> {
 
         distance.setText(distanceInKM);
         town.setText(location);
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), ChatActivity.class);
+                intent.putExtra("userID", user.getUid());
+                intent.putExtra("userName", user.getName());
+                activity.startActivity(intent);
+            }
+        });
 
         return convertView;
     }

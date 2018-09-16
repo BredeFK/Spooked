@@ -40,4 +40,8 @@ public class FriendListAdapter extends ArrayAdapter<User> {
 
         return convertView;
     }
+
+    
+
+
 }

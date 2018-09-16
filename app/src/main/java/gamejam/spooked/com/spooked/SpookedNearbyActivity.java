@@ -16,6 +16,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -72,7 +74,6 @@ public class SpookedNearbyActivity extends AppCompatActivity {
         listNearby = findViewById(R.id.nearbyListView);
         adapter = new NearbyAdapter(this, R.layout.nearby_item);
         setupListView();
-
     }
 
     private void initPos(){
@@ -172,6 +173,7 @@ public class SpookedNearbyActivity extends AppCompatActivity {
             }
         }
 
+        adapter.clear();
         // Reverse list (sort by lowest) and display
         for (int i = sortedUserList.size()-1; i >= 0; i--) {
             Log.d("SORTED", sortedUserList.get(i).getName());
