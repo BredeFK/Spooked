@@ -102,6 +102,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             default: ghost = R.mipmap.if_ghost5; visible = 0.2f; break;
         }
 
+        if(userID.equals(text)){
+            ghost = R.mipmap.if_ghost_me;
+            visible = 1.0f;
+        }
+
         Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(pos)
                             //.title(text)
@@ -123,6 +128,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
+        final String uid = (String)marker.getTag();
+
+        if(userID.equals(uid)){return false;}
+
         currentMarker = marker;
         markerFocus = true;
         marker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost6));
@@ -136,14 +145,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         Button button = (Button)findViewById(R.id.button); //TODO: functionality for this button
         Button button2 = (Button)findViewById(R.id.button2);
 
-        final String uid = (String)marker.getTag();
-
-
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MapActivity.this, ChatActivity.class);
-                intent.putExtra("uid", uid);
+                intent.putExtra("userID", uid);
                 startActivity(intent);
             }
         });
