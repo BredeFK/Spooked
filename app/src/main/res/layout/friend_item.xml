@@ -6,12 +6,13 @@
 
     <TextView
         android:id="@+id/friendID"
+        android:background="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
         android:maxLines="1"
-        android:textColor="@color/colorAccent"
-        android:textSize="30sp"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="35sp"
         android:textStyle="bold"
         tools:text="User1" />
 

@@ -74,7 +74,8 @@ public class FriendListActivity extends AppCompatActivity {
     }
 
     private void fillListView(String Uid){
-        friendRef.child(Uid).orderByValue().addValueEventListener(new ValueEventListener() {
+        // Order alphabetical
+        friendRef.child(Uid).orderByChild("name").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 friendArray.clear();
