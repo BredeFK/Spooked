@@ -17,7 +17,7 @@
             android:background="@color/colorAccent"
             android:gravity="center"
             android:text="@string/information"
-            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textColor="@android:color/holo_blue_dark"
             android:textSize="20sp"
             android:textStyle="bold" />
 

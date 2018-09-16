@@ -64,7 +64,7 @@
         android:layout_marginBottom="5dp"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="5dp"
-        android:background="@color/colorPrimaryDark"
+        android:background="@android:color/holo_blue_dark"
         android:text="@string/send"
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/darker_gray"

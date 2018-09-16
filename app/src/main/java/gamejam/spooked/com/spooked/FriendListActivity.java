@@ -1,6 +1,8 @@
 package gamejam.spooked.com.spooked;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -46,7 +48,7 @@ public class FriendListActivity extends AppCompatActivity {
 
 
         FloatingActionButton actionButton = (FloatingActionButton) findViewById(R.id.fab);
-        actionButton.setImageResource(R.drawable.baseline_search_black_24);
+        actionButton.setImageResource(R.drawable.baseline_search_white_48);
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -22,10 +22,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.images.ImageRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Map;
 
@@ -33,8 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_LOCATION_CODE = 1;
     private FirebaseAuth auth;
     private FirebaseUser user;
-    private Button maps;
-    private Button friends;
+    private ImageButton maps;
+    private ImageButton friends;
+    private TextView usernameView;
 
     PendingIntent alarmIntent;
 
@@ -57,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("thisUserID", user.getUid());
             editor.apply();
+
+            usernameView.setText(user.getDisplayName());
+
 
             maps.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(MainActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         REQUEST_LOCATION_CODE);
-            } else {
-                //Intent intent = new Intent(MainActivity.this, MapActivity.class);
-               // Intent intent = new Intent(MainActivity.this, FriendListActivity.class);
-               // startActivity(intent);
             }
 
         }
@@ -94,15 +99,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
     }
 
     private void initialise(){
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
-        maps = findViewById(R.id.maps);
+        maps = findViewById(R.id.map);
         friends = findViewById(R.id.friends);
+        usernameView = findViewById(R.id.userName);
     }
 
 
