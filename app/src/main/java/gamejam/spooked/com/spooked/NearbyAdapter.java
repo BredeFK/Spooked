@@ -1,5 +1,6 @@
 package gamejam.spooked.com.spooked;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.location.Geocoder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -26,6 +33,9 @@ public class NearbyAdapter extends ArrayAdapter<User> {
     private Activity activity;
     private int id;
     private SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference friendsRef = database.getReference("Friends");
+    private boolean ok = false;
     float lat, lon;
 
     public NearbyAdapter(Context context, int id){
@@ -34,9 +44,11 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         this.id = id;
     }
 
+    @SuppressLint("ResourceAsColor")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        String thisUser = preferences.getString("thisUserID", "");
         lat = preferences.getFloat("lat", 0);
         lon = preferences.getFloat("lon", 0);
 
@@ -53,19 +65,20 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         TextView town = convertView.findViewById(R.id.nearTown);
         String location = getTownFromLatAndLon(user.getLastLatitude(), user.getLastLongitude());
         String distanceInKM = distance(lat, lon, user.getLastLatitude(), user.getLastLongitude()) + "km";
-
+        ConstraintLayout layout = convertView.findViewById(R.id.constraintID);
 
         if (user.getName() != null){
             name.setText(user.getName());
         }
 
-
         distance.setText(distanceInKM);
         town.setText(location);
+
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addFriend(user);
                 Intent intent = new Intent(getContext(), ChatActivity.class);
                 intent.putExtra("userID", user.getUid());
                 intent.putExtra("userName", user.getName());
@@ -74,6 +87,16 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         });
 
         return convertView;
+    }
+
+    private void addFriend(User friend){
+        // TODO make sure the friend is not already added
+        String thisUser = preferences.getString("thisUserID", "");
+        if(!isFriendly(thisUser, friend.getUid())){
+            friendsRef.child(thisUser).child(friend.getUid()).setValue(friend);
+            Toast.makeText(getContext(), "Added " + friend.getName() + " to friendlist :D", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     private String getTownFromLatAndLon(double lat, double lon){
@@ -118,4 +141,19 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         return Math.floor(dist * 100) / 100;
     }
     // Source done
+
+    private boolean isFriendly(String thisUser, String friend){
+        friendsRef.child(thisUser).child(friend).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ok = true;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        return ok;
+    }
 }

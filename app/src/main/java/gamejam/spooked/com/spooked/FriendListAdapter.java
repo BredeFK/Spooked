@@ -2,6 +2,7 @@ package gamejam.spooked.com.spooked;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
@@ -27,7 +28,7 @@ public class FriendListAdapter extends ArrayAdapter<User> {
             convertView = this.activity.getLayoutInflater().inflate(this.id, parent, false);
         }
 
-        User user = this.getItem(position);
+        final User user = this.getItem(position);
         if(user == null)
             throw new NullPointerException();
 
@@ -38,8 +39,19 @@ public class FriendListAdapter extends ArrayAdapter<User> {
             friend.setText(user.getName());
         }
 
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), ChatActivity.class);
+                intent.putExtra("userID", user.getUid());
+                intent.putExtra("userName", user.getName());
+                activity.startActivity(intent);
+            }
+        });
+
         return convertView;
     }
+
 
     
 

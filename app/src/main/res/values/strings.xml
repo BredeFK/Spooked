@@ -13,4 +13,5 @@
     <string name="friends">Friends</string>
     <string name="send">Send</string>
     <string name="nearby">Spooked people nearby</string>
+    <string name="information">Click on a spooked person to add them</string>
 </resources>

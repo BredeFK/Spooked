@@ -38,6 +38,7 @@ public class FriendListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         FloatingActionButton actionButton = (FloatingActionButton) findViewById(R.id.fab);
         actionButton.setImageResource(R.drawable.baseline_search_black_24);
         actionButton.setOnClickListener(new View.OnClickListener() {
@@ -71,6 +72,7 @@ public class FriendListActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 friendArray.clear();
+                adapter.clear();
                 for (DataSnapshot child : dataSnapshot.getChildren()){
                     User friend = child.getValue(User.class);
                     adapter.add(friend);
