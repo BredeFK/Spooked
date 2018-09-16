@@ -21,7 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class NotificationActivity extends IntentService {
-    static int oldMessages;
 
     private NotificationChannel channel;
     private NotificationManager notificationManager;
@@ -32,6 +31,7 @@ public class NotificationActivity extends IntentService {
     private Context context = this;
 
     private String userID;
+    private String sendersUserID;
 
     private boolean boot = true;
 
@@ -45,7 +45,6 @@ public class NotificationActivity extends IntentService {
     public void onHandleIntent(@Nullable Intent intent) {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        oldMessages = preferences.getInt("message_nr", 0);
         userID = preferences.getString("thisUserID", "REEEEEEEEEEEEEEEEEEEEEEEEEEEE");
 
 
@@ -83,6 +82,7 @@ public class NotificationActivity extends IntentService {
                                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                                     if (!child.getValue(Message.class).getUserID().equals(userID)) {
                                         messages++;
+                                        sendersUserID = child.getValue(Message.class).getUserID();
                                     }
                                 }
 
@@ -118,8 +118,9 @@ public class NotificationActivity extends IntentService {
     }
 
     private void sendNotification(int diff) {
-        Intent mainIntent = new Intent(context, ChatActivity.class);
-        mainIntent.putExtra("userID", userID);
+        Intent mainIntent = new Intent(NotificationActivity.this, ChatActivity.class);
+        mainIntent.putExtra("userID", sendersUserID); //TODO: WHY DOESNT IT WORK
+        Log.d("FUCK YOU", "sendNotification: "+ sendersUserID);
         pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
 
         // Build the Notification
