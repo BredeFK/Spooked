@@ -24,7 +24,6 @@ public class ChatActivity extends AppCompatActivity {
     private String friendID;
     private DatabaseReference messageRef;
     private FirebaseUser user;
-    private FirebaseAuth auth;
     private ListView listMessages;
     private Button sendButton;
     private EditText newMessage;
@@ -35,10 +34,10 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-      //  String friendName = getIntent().getStringExtra("userName");
-       // setTitle(friendName);
+        // String friendName = getIntent().getStringExtra("userName");
+        // setTitle(friendName);
         friendID = getIntent().getStringExtra("userID");
-        auth = FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         messageRef = FirebaseDatabase.getInstance().getReference("Messages");
         listMessages = findViewById(R.id.messageListID);
@@ -57,7 +56,6 @@ public class ChatActivity extends AppCompatActivity {
                 adapter.clear();
                 for(DataSnapshot child : dataSnapshot.getChildren()){
                     Message message = child.getValue(Message.class);
-                    Log.d("MESSAGE", message.message);
                     adapter.add(message);
                 }
                 listMessages.setAdapter(adapter);

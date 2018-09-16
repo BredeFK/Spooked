@@ -1,6 +1,5 @@
 package gamejam.spooked.com.spooked;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,14 +17,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,29 +32,26 @@ public class NearbyAdapter extends ArrayAdapter<User> {
     private SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference friendsRef = database.getReference("Friends");
-    private boolean ok = false;
-    float lat, lon;
+    private DatabaseReference userRef = database.getReference("Users");
 
-    public NearbyAdapter(Context context, int id){
-        super(context,id);
-        this.activity = (Activity)context;
+    public NearbyAdapter(Context context, int id) {
+        super(context, id);
+        this.activity = (Activity) context;
         this.id = id;
     }
 
-    @SuppressLint("ResourceAsColor")
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String thisUser = preferences.getString("thisUserID", "");
-        lat = preferences.getFloat("lat", 0);
-        lon = preferences.getFloat("lon", 0);
+        float lat = preferences.getFloat("lat", 0);
+        float lon = preferences.getFloat("lon", 0);
 
-        if(convertView == null){
+        if (convertView == null) {
             convertView = this.activity.getLayoutInflater().inflate(this.id, parent, false);
         }
 
         final User user = this.getItem(position);
-        if(user == null)
+        if (user == null)
             throw new NullPointerException();
 
         TextView name = convertView.findViewById(R.id.nearName);
@@ -65,9 +59,9 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         TextView town = convertView.findViewById(R.id.nearTown);
         String location = getTownFromLatAndLon(user.getLastLatitude(), user.getLastLongitude());
         String distanceInKM = distance(lat, lon, user.getLastLatitude(), user.getLastLongitude()) + "km";
-        ConstraintLayout layout = convertView.findViewById(R.id.constraintID);
+        //ConstraintLayout layout = convertView.findViewById(R.id.constraintID);
 
-        if (user.getName() != null){
+        if (user.getName() != null) {
             name.setText(user.getName());
         }
 
@@ -78,7 +72,8 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addFriend(user);
+                String thisUser = preferences.getString("thisUserID", "");
+                userExists(thisUser, user);
                 Intent intent = new Intent(getContext(), ChatActivity.class);
                 intent.putExtra("userID", user.getUid());
                 intent.putExtra("userName", user.getName());
@@ -89,34 +84,50 @@ public class NearbyAdapter extends ArrayAdapter<User> {
         return convertView;
     }
 
-    private void addFriend(User friend){
+    private void addFriend(final User thisUser, final User friend) {
         // TODO make sure the friend is not already added
-        String thisUser = preferences.getString("thisUserID", "");
-        if(!isFriendly(thisUser, friend.getUid())){
-            friendsRef.child(thisUser).child(friend.getUid()).setValue(friend);
-            Toast.makeText(getContext(), "Added " + friend.getName() + " to friendlist :D", Toast.LENGTH_LONG).show();
-        }
+        friendsRef.child(thisUser.getUid()).orderByChild("uid").equalTo(friend.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    // Add friend
+                    friendsRef.child(thisUser.getUid()).child(friend.getUid()).setValue(friend);
+                    // Make friend add you >:)
+                    friendsRef.child(friend.getUid()).child(thisUser.getUid()).setValue(thisUser);
+                    // Feedback <3
+                    Toast.makeText(getContext(), "Added " + friend.getName() + " to friendlist :D", Toast.LENGTH_LONG).show();
+                } else {
+                    Log.d("NearbyAdapter:addFriend", "Already friends with " + friend.getName());
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    private String getTownFromLatAndLon(double lat, double lon){
+    private String getTownFromLatAndLon(double lat, double lon) {
         String city = null;
         String county = null;
         String country = null;
         Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
-        try{
+        try {
             List<Address> addresses = geocoder.getFromLocation(lat, lon, 1);
             city = addresses.get(0).getAdminArea();
             county = addresses.get(0).getSubAdminArea();
             country = addresses.get(0).getCountryName();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.w("Address error", e.getMessage());
         }
-        if(county != null && city != null)
+        if (county != null && city != null)
             return county + ", " + city;
-        else if(country != null)
+        else if (country != null)
             return "[no city], " + country;
+        else if (city != null)
+            return city + ", [no county]";
         else
             return "[no city]";
     }
@@ -142,11 +153,14 @@ public class NearbyAdapter extends ArrayAdapter<User> {
     }
     // Source done
 
-    private boolean isFriendly(String thisUser, String friend){
-        friendsRef.child(thisUser).child(friend).addValueEventListener(new ValueEventListener() {
+    private void userExists(final String thisUser, final User friend) {
+        userRef.child(thisUser).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ok = true;
+                if (dataSnapshot.exists()) {
+                    User user = dataSnapshot.getValue(User.class);
+                    addFriend(user, friend);
+                }
             }
 
             @Override
@@ -154,6 +168,5 @@ public class NearbyAdapter extends ArrayAdapter<User> {
 
             }
         });
-        return ok;
     }
 }
