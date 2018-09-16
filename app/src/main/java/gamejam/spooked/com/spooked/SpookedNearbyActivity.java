@@ -2,6 +2,7 @@ package gamejam.spooked.com.spooked;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -14,6 +15,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -32,6 +36,7 @@ public class SpookedNearbyActivity extends AppCompatActivity {
     private ArrayList<User> userList = new ArrayList<>();
     private DatabaseReference userRef;
     private FirebaseUser user;
+    private FirebaseAuth auth;
     private ListView listNearby;
     private NearbyAdapter adapter;
     private SharedPreferences.Editor editor;
@@ -47,7 +52,7 @@ public class SpookedNearbyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_spooked_nearby);
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         userRef = database.getReference(userString);
         user = auth.getCurrentUser();
@@ -190,4 +195,25 @@ public class SpookedNearbyActivity extends AppCompatActivity {
         return Math.floor(dist * 100) / 100;
     }
     // Source done
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(item.getItemId() == R.id.action_logout){
+            if(user != null)
+                auth.signOut();
+            Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(SpookedNearbyActivity.this, UserActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_settings, menu);
+        return true;
+    }
 }

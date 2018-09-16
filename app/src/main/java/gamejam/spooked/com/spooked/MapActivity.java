@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -17,6 +18,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -52,6 +54,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private FirebaseAuth auth;
     private FirebaseDatabase mDatabase;
     private DatabaseReference myRef;
+    private DatabaseReference userRef;
+    private DatabaseReference friendRef;
 
     private ArrayList<Marker> markerList = new ArrayList<>();
 
@@ -60,7 +64,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        currentLatLng = new LatLng(0,0);
+        currentLatLng = new LatLng(0, 0);
 
         //firebase auth
         auth = FirebaseAuth.getInstance();
@@ -70,6 +74,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //db connection and reference
         this.mDatabase = FirebaseDatabase.getInstance();
         this.myRef = mDatabase.getReference("spooks");
+        this.userRef = mDatabase.getReference("Users");
+        this.friendRef = mDatabase.getReference("Friends");
 
         this.currentDate = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
 
@@ -82,37 +88,55 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     }
 
-    private void addToMap(LatLng pos, String text, int daysOld){
+    private void addToMap(LatLng pos, String text, int daysOld) {
 
         int ghost = 0;
         float visible = 1.0f;
 
-        switch (daysOld){
-            case 0: ghost = R.mipmap.if_ghost1; visible = 1.0f; break;
-            case 1: ghost = R.mipmap.if_ghost1; visible = 0.9f; break;
-            case 2: ghost = R.mipmap.if_ghost2; visible = 0.8f; break;
-            case 3: ghost = R.mipmap.if_ghost3; visible = 0.6f; break;
-            case 4: ghost = R.mipmap.if_ghost4; visible = 0.4f; break;
-            default: ghost = R.mipmap.if_ghost5; visible = 0.2f; break;
+        switch (daysOld) {
+            case 0:
+                ghost = R.mipmap.if_ghost1;
+                visible = 1.0f;
+                break;
+            case 1:
+                ghost = R.mipmap.if_ghost1;
+                visible = 0.9f;
+                break;
+            case 2:
+                ghost = R.mipmap.if_ghost2;
+                visible = 0.8f;
+                break;
+            case 3:
+                ghost = R.mipmap.if_ghost3;
+                visible = 0.6f;
+                break;
+            case 4:
+                ghost = R.mipmap.if_ghost4;
+                visible = 0.4f;
+                break;
+            default:
+                ghost = R.mipmap.if_ghost5;
+                visible = 0.2f;
+                break;
         }
 
-        if(userID.equals(text)){
+        if (userID.equals(text)) {
             ghost = R.mipmap.if_ghost_me;
             visible = 1.0f;
         }
 
         Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(pos)
-                            //.title(text)
-                            .visible(true)
-                            .alpha(visible)
-                            .icon(BitmapDescriptorFactory.fromResource(ghost))
+                .position(pos)
+                //.title(text)
+                .visible(true)
+                .alpha(visible)
+                .icon(BitmapDescriptorFactory.fromResource(ghost))
         );
         marker.setTag(text);
         markerList.add(marker);
     }
 
-    private void deleteMarkers(){
+    private void deleteMarkers() {
         for (int i = 0; i < markerList.size(); i++) {
             markerList.get(i).remove();
         }
@@ -122,9 +146,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-        final String uid = (String)marker.getTag();
+        final String uid = (String) marker.getTag();
 
-        if(userID.equals(uid)){return false;}
+        if (userID.equals(uid)) {
+            return false;
+        }
 
         currentMarker = marker;
         markerFocus = true;
@@ -136,8 +162,30 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         fragment.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
-        Button button = (Button)findViewById(R.id.button); //TODO: functionality for this button
-        Button button2 = (Button)findViewById(R.id.button2);
+        Button button = (Button) findViewById(R.id.button); //TODO: functionality for this button
+        Button button2 = (Button) findViewById(R.id.button2);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                friendRef.child(userID).orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            addFriend(uid);
+
+                        } else {
+                            Toast.makeText(MapActivity.this, "You are already friends with this person!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
 
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,13 +199,55 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         return false;
     }
 
+    private void addFriend(final String friendID) {
+        final ArrayList<User> users = new ArrayList<>();
+        users.clear();
+        //  userRef.child(friendID).addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.orderByKey().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    User user = child.getValue(User.class);
+                    if (user.getUid().equals(userID)) {// || user.getUid().equals(friendID)){
+                        users.add(0, user);
+                    }
+                    if (user.getUid().equals(friendID)) {
+                        users.add(1, user);
+                    }
+                }
+                if (users.size() == 2) {
+                    // Add person(1)(friend) to person(0)s(this users) friend list
+                    friendRef.child(users.get(0).getUid()).child(users.get(1).getUid()).setValue(users.get(1));
+                    // Add person(0)(this user) to person(1)s(friend) friend list
+                    friendRef.child(users.get(1).getUid()).child(users.get(0).getUid()).setValue(users.get(0));
+                    Toast.makeText(MapActivity.this, "Added " + users.get(1).getName() + " to your friend list!", Toast.LENGTH_LONG).show();
+                }
+                /*
+                if(dataSnapshot.exists()){
+                    User user = dataSnapshot.getValue(User.class);
+                    // Add friend
+                    friendRef.child(userID).child(friendID).setValue(user);
+                    // Make friend add you >:)
+                    // friendRef.child(friendID).child(userID).setValue();
+                    // Feedback <3
+                }
+                */
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     @Override
-    public void onMapClick(LatLng point){
-        if(markerFocus){
+    public void onMapClick(LatLng point) {
+        if (markerFocus) {
             ConstraintLayout fragment = (ConstraintLayout) findViewById(R.id.constlay);
             fragment.setVisibility(View.INVISIBLE);
 
-            if(currentMarker != null){
+            if (currentMarker != null) {
                 currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost5));
                 currentMarker.setAlpha(0.4f);
             }
@@ -198,14 +288,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
     }
 
-    private void readFromDB(){
+    private void readFromDB() {
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 deleteMarkers(); //resets all markers - this is very unefficient but ye
-                for(DataSnapshot child: dataSnapshot.getChildren()) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
                     Spook spook = child.getValue(Spook.class);
-                    addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID(), currentDate-spook.getDate());
+                    addToMap(new LatLng(spook.getLatitude(), spook.getLongitude()), spook.getUserID(), currentDate - spook.getDate());
                 }
             }
 
@@ -217,14 +307,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     }
 
 
-    private void setupMapAndLocation(){
+    private void setupMapAndLocation() {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         //check/request location permissions
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
             ActivityCompat.requestPermissions(MapActivity.this,
@@ -242,16 +332,22 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                 LatLng pos = new LatLng(location.getLatitude(), location.getLongitude());
                 currentLatLng = pos;
             }
-            public void onStatusChanged(String provider, int status, Bundle extras) { }
-            public void onProviderEnabled(String provider) { }
-            public void onProviderDisabled(String provider) { }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            public void onProviderEnabled(String provider) {
+            }
+
+            public void onProviderDisabled(String provider) {
+            }
         };
 
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
     }
 
-    private void setupFAB(){
+    private void setupFAB() {
         // FAB STUFF
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -266,8 +362,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         });
     }
 
-    private void updateLocationToUserDB(double latitude, double longitude){
-        Log.d ("FUCK BOI", "Latitude: " + latitude + " longitude: " + longitude);
+    private void updateLocationToUserDB(double latitude, double longitude) {
+        Log.d("FUCK BOI", "Latitude: " + latitude + " longitude: " + longitude);
         // TODO works sometimes :D
 
         DatabaseReference userRef = mDatabase.getReference("Users");//.child(userID);

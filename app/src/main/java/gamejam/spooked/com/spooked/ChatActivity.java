@@ -1,9 +1,13 @@
 package gamejam.spooked.com.spooked;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +27,7 @@ import java.util.Calendar;
 public class ChatActivity extends AppCompatActivity {
     private String friendID;
     private DatabaseReference messageRef;
+    private FirebaseAuth auth;
     private FirebaseUser user;
     private ListView listMessages;
     private Button sendButton;
@@ -37,7 +42,7 @@ public class ChatActivity extends AppCompatActivity {
         // String friendName = getIntent().getStringExtra("userName");
         // setTitle(friendName);
         friendID = getIntent().getStringExtra("userID");
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
         messageRef = FirebaseDatabase.getInstance().getReference("Messages");
         listMessages = findViewById(R.id.messageListID);
@@ -94,6 +99,27 @@ public class ChatActivity extends AppCompatActivity {
         } else {
             return friend + thisUser;
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(item.getItemId() == R.id.action_logout){
+            if(user != null)
+                auth.signOut();
+            Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(ChatActivity.this, UserActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_settings, menu);
+        return true;
     }
 
 
