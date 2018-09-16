@@ -56,4 +56,23 @@ public class User {
         return (lastLongitude != 100 && lastLatitude != 100);
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setLastLatitude(double lastLatitude) {
+        this.lastLatitude = lastLatitude;
+    }
+
+    public void setLastLongitude(double lastLongitude) {
+        this.lastLongitude = lastLongitude;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 }

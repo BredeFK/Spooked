@@ -1,9 +1,15 @@
 package gamejam.spooked.com.spooked;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -30,10 +36,17 @@ public class MainActivity extends AppCompatActivity {
     private Button maps;
     private Button friends;
 
+    PendingIntent alarmIntent;
+
     @Override
     protected void onStart() {
         super.onStart();
         initialise();
+
+        if(alarmIntent != null) {
+            AlarmManager aManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+            aManager.cancel(this.alarmIntent);
+        }
 
         // User is not logged in
         if(user == null){
@@ -92,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
         friends = findViewById(R.id.friends);
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         if(item.getItemId() == R.id.action_logout){
@@ -134,5 +149,28 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
         }
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+
+        if(alarmIntent != null) {
+            AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(this.alarmIntent);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Intent notificationIntent = new Intent(this, NotificationActivity.class);
+        alarmIntent = PendingIntent.getBroadcast(MainActivity.this, 0, notificationIntent, 0);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5* 60 * 1000, alarmIntent);
+
+        startService(notificationIntent);
     }
 }
