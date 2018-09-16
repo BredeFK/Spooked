@@ -121,7 +121,7 @@ public class NotificationActivity extends IntentService {
         Intent mainIntent = new Intent(NotificationActivity.this, ChatActivity.class);
         mainIntent.putExtra("userID", sendersUserID); //TODO: WHY DOESNT IT WORK
         Log.d("FUCK YOU", "sendNotification: "+ sendersUserID);
-        pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, 0);
+        pendingIntent = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Build the Notification
         this.builder
