@@ -173,6 +173,7 @@ public class SpookedNearbyActivity extends AppCompatActivity {
             }
         }
 
+        adapter.clear();
         // Reverse list (sort by lowest) and display
         for (int i = sortedUserList.size()-1; i >= 0; i--) {
             Log.d("SORTED", sortedUserList.get(i).getName());
