@@ -280,4 +280,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         userRef.child(userID).child("lastLatitude").setValue(latitude);
         userRef.child(userID).child("lastLongitude").setValue(longitude);
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(MapActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 }
