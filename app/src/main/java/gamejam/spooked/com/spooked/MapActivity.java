@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInOptionsExtension;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,7 +44,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
+
+    private boolean markerFocus = false;
+    private Marker currentMarker = null;
 
     private GoogleMap mMap;
 
@@ -119,7 +123,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-
+        currentMarker = marker;
+        markerFocus = true;
         marker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost6));
         marker.setAlpha(1.0f);
 
@@ -133,7 +138,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         final String uid = (String)marker.getTag();
 
-        Log.d("FUUUUUUUUUUUUUUUUUUQ", " : " +uid);
 
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +151,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         return false;
     }
 
+    @Override
+    public void onMapClick(LatLng point){
+        if(markerFocus){
+            ConstraintLayout fragment = (ConstraintLayout) findViewById(R.id.constlay);
+            fragment.setVisibility(View.INVISIBLE);
+
+            if(currentMarker != null){
+                currentMarker.setIcon(BitmapDescriptorFactory.fromResource(R.mipmap.if_ghost5));
+                currentMarker.setAlpha(0.4f);
+            }
+
+            markerFocus = false;
+        }
+    }
 
     /**
      * Manipulates the map once available.
@@ -175,6 +193,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         this.mMap = googleMap;
         this.mMap.setOnMarkerClickListener(this);
+        this.mMap.setOnMapClickListener(this);
         mMap.getUiSettings().setMapToolbarEnabled(false);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(60.7901781, 10.6834482), 15));
     }
