@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInOptionsExtension;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -58,6 +60,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private FirebaseAuth auth;
     private FirebaseDatabase mDatabase;
     private DatabaseReference myRef;
+    private DatabaseReference userRef;
+    private DatabaseReference friendRef;
 
     private ArrayList<Marker> markerList = new ArrayList<>();
 
@@ -76,6 +80,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         //db connection and reference
         this.mDatabase = FirebaseDatabase.getInstance();
         this.myRef = mDatabase.getReference("spooks");
+        this.userRef = mDatabase.getReference("Users");
+        this.friendRef = mDatabase.getReference("Friends");
 
         this.currentDate = Integer.parseInt(new SimpleDateFormat("yyyyMMdd").format(Calendar.getInstance().getTime()));
 
@@ -145,6 +151,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         Button button = (Button)findViewById(R.id.button); //TODO: functionality for this button
         Button button2 = (Button)findViewById(R.id.button2);
 
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                friendRef.child(userID).orderByChild("uid").equalTo(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (!dataSnapshot.exists()) {
+                            addFriend(uid);
+
+                        } else {
+                            Toast.makeText(MapActivity.this, "You are already friends with this person!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
+
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -155,6 +183,48 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         });
 
         return false;
+    }
+
+    private void addFriend(final String friendID){
+        final ArrayList<User> users = new ArrayList<>();
+        users.clear();
+      //  userRef.child(friendID).addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.orderByKey().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot child : dataSnapshot.getChildren()){
+                    User user = child.getValue(User.class);
+                    if(user.getUid().equals(userID)){// || user.getUid().equals(friendID)){
+                        users.add(0, user);
+                    }
+                    if(user.getUid().equals(friendID)){
+                        users.add(1, user);
+                    }
+                }
+                if(users.size() == 2){
+                    // Add person(1)(friend) to person(0)s(this users) friend list
+                    friendRef.child(users.get(0).getUid()).child(users.get(1).getUid()).setValue(users.get(1));
+                    // Add person(0)(this user) to person(1)s(friend) friend list
+                    friendRef.child(users.get(1).getUid()).child(users.get(0).getUid()).setValue(users.get(0));
+                    Toast.makeText(MapActivity.this, "Added " + users.get(1).getName() + " to your friend list!", Toast.LENGTH_LONG).show();
+                }
+                /*
+                if(dataSnapshot.exists()){
+                    User user = dataSnapshot.getValue(User.class);
+                    // Add friend
+                    friendRef.child(userID).child(friendID).setValue(user);
+                    // Make friend add you >:)
+                    // friendRef.child(friendID).child(userID).setValue();
+                    // Feedback <3
+                }
+                */
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override

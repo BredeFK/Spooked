@@ -6,6 +6,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -26,6 +29,9 @@ public class FriendListActivity extends AppCompatActivity {
     private FriendListAdapter adapter;
     private FirebaseDatabase db;
     private DatabaseReference friendRef;
+    private FirebaseUser user;
+    private FirebaseAuth auth;
+
     private static final String friends = "Friends";
     private ArrayList<User> friendArray = new ArrayList<>();
 
@@ -58,8 +64,8 @@ public class FriendListActivity extends AppCompatActivity {
         adapter = new FriendListAdapter(this, R.layout.friend_item);
         db = FirebaseDatabase.getInstance();
         friendRef = db.getReference(friends);
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
 
         if(user != null)
             fillListView(user.getUid());
@@ -85,5 +91,26 @@ public class FriendListActivity extends AppCompatActivity {
                 // Rip :(
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        if(item.getItemId() == R.id.action_logout){
+            if(user != null)
+                auth.signOut();
+            Toast.makeText(this, "Logged out!", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(FriendListActivity.this, UserActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_settings, menu);
+        return true;
     }
 }
